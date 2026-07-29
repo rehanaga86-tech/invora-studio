@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invora Studio — Enterprise PDF Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-glow: rgba(6, 182, 212, 0.15);
+            --accent-border: #06b6d4;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #060911;
+        }
+        .surface-card {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(10, 15, 29, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+        }
+        .input-recessed {
+            background-color: #080D18;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .input-recessed:focus-within, .input-recessed:focus {
+            border-color: var(--accent-border);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .paper-sheet {
+            background: #FFFFFF;
+            color: #0F172A;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            transform-origin: top center;
+            transition: transform 0.2s ease-in-out;
+        }
+        summary::-webkit-details-marker { display: none; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen p-4 md:p-8 flex flex-col justify-between relative antialiased selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Backdrop Glow -->
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto w-full space-y-5 relative z-10">
+        
+        <!-- Top Bar -->
+        <header class="surface-card p-4 rounded-2xl flex flex-wrap gap-4 justify-between items-center">
+            <div class="flex items-center gap-3.5">
+                <div class="p-2.5 bg-cyan-500/10 border border-cyan-500/30 rounded-xl text-cyan-400">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold text-white tracking-tight flex items-center gap-2">
+                        Invora <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">PRO</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Enterprise Invoice Studio</p>
+                </div>
+            </div>
+
+            <!-- Theme Accent Pickers -->
+            <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl text-xs">
+                <span class="text-slate-400 font-medium">Accent:</span>
+                <button onclick="setTheme('cyan')" class="w-4 h-4 rounded-full bg-cyan-500 ring-2 ring-white/20 hover:scale-110 transition"></button>
+                <button onclick="setTheme('emerald')" class="w-4 h-4 rounded-full bg-emerald-500 hover:scale-110 transition"></button>
+                <button onclick="setTheme('indigo')" class="w-4 h-4 rounded-full bg-indigo-500 hover:scale-110 transition"></button>
+                <button onclick="setTheme('amber')" class="w-4 h-4 rounded-full bg-amber-500 hover:scale-110 transition"></button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Accordion Form (5 Columns) -->
+            <div class="lg:col-span-5 surface-card p-5 rounded-2xl space-y-3.5">
+                
+                <!-- Section 1: Client & Branding -->
+                <details open class="group bg-slate-900/60 border border-slate-800/80 rounded-xl overflow-hidden transition">
+                    <summary class="flex justify-between items-center p-3.5 cursor-pointer text-xs font-bold text-cyan-400 uppercase tracking-widest select-none">
+                        <span class="flex items-center gap-2"><i data-lucide="building" class="w-4 h-4"></i> 1. Client & Branding</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="p-4 pt-1 border-t border-slate-800/60 space-y-3">
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-semibold mb-1 block">COMPANY LOGO</label>
+                            <div class="input-recessed rounded-xl p-2.5 text-center border-dashed border-2 cursor-pointer relative hover:border-cyan-500 transition">
+                                <input type="file" id="logoInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleLogoUpload(event)">
+                                <div id="logoUploadPrompt" class="text-xs text-slate-400 flex items-center justify-center gap-2">
+                                    <i data-lucide="upload-cloud" class="w-4 h-4 text-cyan-400"></i> Upload Logo Image
+                                </div>
+                                <div id="logoPreviewContainer" class="hidden flex items-center justify-between">
+                                    <img id="logoImgPreview" class="h-7 object-contain" src="" alt="Logo">
+                                    <button onclick="removeLogo(event)" class="text-xs text-red-400 hover:underline">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-semibold mb-1 block">CUSTOMER / COMPANY</label>
+                            <input type="text" id="custName" placeholder="Anuj Solutions Pvt Ltd" class="input-recessed w-full rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[11px] text-slate-400 font-semibold mb-1 block">INVOICE NO.</label>
+                                <input type="text" id="invNum" value="INV-2026-01" class="input-recessed w-full rounded-xl px-3.5 py-2 text-sm text-white font-mono focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 font-semibold mb-1 block">CURRENCY</label>
+                                <select id="currencySel" class="input-recessed w-full rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="$">USD ($)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[11px] text-slate-400 font-semibold mb-1 block">INVOICE DATE</label>
+                                <input type="date" id="invDate" class="input-recessed w-full rounded-xl px-3 py-2 text-xs text-white font-mono focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 font-semibold mb-1 block">DUE TERMS / DAYS</label>
+                                <input type="text" id="dueDate" placeholder="e.g. 15 or 2026-08-15" class="input-recessed w-full rounded-xl px-3.5 py-2 text-xs text-white font-mono focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Section 2: Items & Discounts -->
+                <details open class="group bg-slate-900/60 border border-slate-800/80 rounded-xl overflow-hidden transition">
+                    <summary class="flex justify-between items-center p-3.5 cursor-pointer text-xs font-bold text-cyan-400 uppercase tracking-widest select-none">
+                        <span class="flex items-center gap-2"><i data-lucide="list-plus" class="w-4 h-4"></i> 2. Line Items & Discounts</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="p-4 pt-1 border-t border-slate-800/60 space-y-3">
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-[11px] text-slate-400 font-semibold mb-1 block">TAX RATE (%)</label>
+                                <input type="number" id="taxRate" value="18" class="input-recessed w-full rounded-xl px-3 py-1.5 text-sm text-white font-mono focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 font-semibold mb-1 block">DISCOUNT</label>
+                                <input type="number" id="discountVal" value="0" class="input-recessed w-full rounded-xl px-3 py-1.5 text-sm text-white font-mono focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 font-semibold mb-1 block">TYPE</label>
+                                <select id="discountType" class="input-recessed w-full rounded-xl px-2 py-1.5 text-xs text-white focus:outline-none">
+                                    <option value="flat">Flat Symbol</option>
+                                    <option value="percent">Percent %</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2.5 pt-2 border-t border-slate-800/40">
+                            <input type="text" id="itemDesc" placeholder="Item description (e.g. Cloud Hosting)" class="input-recessed w-full rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none">
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="number" id="itemQty" placeholder="Qty" class="input-recessed w-full rounded-xl px-3.5 py-2 text-sm text-white font-mono focus:outline-none">
+                                <input type="number" id="itemPrice" step="0.01" placeholder="Unit Price" class="input-recessed w-full rounded-xl px-3.5 py-2 text-sm text-white font-mono focus:outline-none">
+                            </div>
+                            <button onclick="addItem()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2.5 rounded-xl transition text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-[0.98]">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Add Line Item
+                            </button>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Section 3: Payment & Notes -->
+                <details class="group bg-slate-900/60 border border-slate-800/80 rounded-xl overflow-hidden transition">
+                    <summary class="flex justify-between items-center p-3.5 cursor-pointer text-xs font-bold text-cyan-400 uppercase tracking-widest select-none">
+                        <span class="flex items-center gap-2"><i data-lucide="credit-card" class="w-4 h-4"></i> 3. Payment & Terms</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+                    </summary>
+                    <div class="p-4 pt-1 border-t border-slate-800/60 space-y-3">
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-semibold mb-1 block">BANK / UPI DETAILS</label>
+                            <textarea id="bankDetails" rows="2" placeholder="UPI: invora@upi | Bank: HDFC Bank" class="input-recessed w-full rounded-xl px-3 py-2 text-xs text-white focus:outline-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-semibold mb-1 block">TERMS & NOTES</label>
+                            <textarea id="notes" rows="2" placeholder="Payment due within specified term date." class="input-recessed w-full rounded-xl px-3 py-2 text-xs text-white focus:outline-none"></textarea>
+                        </div>
+                    </div>
+                </details>
+
+            </div>
+
+            <!-- Right Workspace: Paper Document Canvas (7 Columns) -->
+            <div class="lg:col-span-7 surface-card p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                
+                <div>
+                    <!-- Canvas Toolbar -->
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="eye" class="w-4 h-4 text-cyan-400"></i>
+                            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-widest">Live Document Preview</h2>
+                        </div>
+                        
+                        <!-- Zoom & Badge Controls -->
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-xs text-slate-400">
+                                <button onclick="adjustZoom(-0.05)" class="px-2 py-0.5 hover:text-white transition">-</button>
+                                <span id="zoomLevelText" class="px-1 text-[10px] font-mono">100%</span>
+                                <button onclick="adjustZoom(0.05)" class="px-2 py-0.5 hover:text-white transition">+</button>
+                            </div>
+                            <span id="itemCountBadge" class="text-[11px] font-mono bg-slate-800 text-cyan-300 px-2.5 py-0.5 rounded-full border border-slate-700">0 Items</span>
+                        </div>
+                    </div>
+
+                    <!-- White Paper Sheet Container -->
+                    <div id="paperCanvas" class="paper-sheet rounded-xl p-6 sm:p-8 min-h-[480px] flex flex-col justify-between">
+                        <div>
+                            <!-- Document Header -->
+                            <div class="border-b border-slate-200 pb-4 mb-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div id="paperLogoWrapper" class="mb-2 hidden">
+                                            <img id="paperLogoImg" src="" class="max-h-12 w-auto object-contain" alt="Logo">
+                                        </div>
+                                        <h3 id="paperInvoiceHeading" class="text-2xl font-extrabold text-slate-900 tracking-tight">INVOICE</h3>
+                                        <span class="inline-block mt-1 text-[9px] font-bold tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded uppercase">Unpaid Draft</span>
+                                    </div>
+                                    <div class="text-right text-xs">
+                                        <span id="prevInvNum" class="font-mono font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">INV-2026-01</span>
+                                        <p id="prevDate" class="text-[11px] text-slate-500 mt-2">Issued: Today</p>
+                                        <p id="prevDueDate" class="text-[11px] font-semibold text-cyan-700 mt-0.5"></p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between text-xs">
+                                    <div>
+                                        <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Billed To</p>
+                                        <p id="prevCustomer" class="font-bold text-slate-800 text-sm mt-0.5">Client Name</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Items Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead>
+                                        <tr class="text-slate-400 border-b border-slate-200 text-[10px] uppercase font-bold">
+                                            <th class="pb-2">Description</th>
+                                            <th class="pb-2 text-center">Qty</th>
+                                            <th class="pb-2 text-right">Price</th>
+                                            <th class="pb-2 text-right">Total</th>
+                                            <th class="pb-2"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemsTable" class="divide-y divide-slate-100 text-slate-800 font-medium">
+                                        <!-- Rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Calculations Box -->
+                        <div class="border-t border-slate-200 pt-4 mt-6">
+                            <div class="flex justify-between items-end">
+                                <div class="text-[10px] text-slate-500 max-w-[220px] space-y-1">
+                                    <p id="prevBankDetails" class="italic"></p>
+                                    <p id="prevNotes"></p>
+                                </div>
+                                <div class="w-52 space-y-1 text-xs text-right">
+                                    <div class="flex justify-between text-slate-500">
+                                        <span>Subtotal:</span>
+                                        <span id="lblSubtotal" class="font-mono text-slate-800">₹0.00</span>
+                                    </div>
+                                    <div id="rowDiscount" class="flex justify-between text-emerald-600 hidden">
+                                        <span>Discount:</span>
+                                        <span id="lblDiscount" class="font-mono">-₹0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-slate-500">
+                                        <span>Tax Estimate:</span>
+                                        <span id="lblTax" class="font-mono text-slate-800">₹0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm font-bold text-slate-900 pt-1.5 border-t border-slate-200">
+                                        <span>Grand Total:</span>
+                                        <span id="lblGrandTotal" class="font-mono text-cyan-600">₹0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Action Control Toolbar -->
+        <div class="surface-card p-4 rounded-2xl flex justify-between items-center">
+            <button onclick="clearAll()" class="text-slate-400 hover:text-red-400 text-xs font-semibold px-4 py-2 rounded-lg hover:bg-red-500/10 transition flex items-center gap-2">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset
+            </button>
+            <button onclick="generatePDF()" class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-slate-950 font-extrabold px-8 py-3 rounded-xl transition shadow-lg shadow-emerald-500/20 text-sm flex items-center gap-2 active:scale-95">
+                <i data-lucide="printer" class="w-4 h-4"></i> Generate & Download PDF
+            </button>
+        </div>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
